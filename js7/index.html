@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Какое то название</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        input[type="range"] {
+            width: 200px;
+        }
+        #output {
+            margin-top: 20px;
+            font-size: 18px;
+            color: blue;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Ля ля </h1>
+
+    <!-- Кнопка -->
+    <button id="myButton">Нажми меня!</button>
+
+    <!-- Ползунок -->
+    <br><br>
+    <label for="myRange">Выберите значение: </label>
+    <input type="range" id="myRange" min="1" max="100" value="50">
+    <div id="output">Текущее значение: 50</div>
+
+    <script src="sketch.js"></script>
+</body>
+</html>
