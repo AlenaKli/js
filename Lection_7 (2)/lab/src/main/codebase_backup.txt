@@ -1,0 +1,856 @@
+# CODEBASE BACKUP
+# Generated on Fri Apr 18 03:42:11 AM MSK 2025
+# Working directory: /home/rflx/secssd/stuff/archive/lab5/lab3/src/main
+# ====================================
+
+
+
+
+# ==================================================================
+# FILE #1: ./export.sh
+# ==================================================================
+# Path: ./export.sh
+# Size: 4.0K | Lines: 122
+# === BEGIN CONTENT ===
+
+#!/bin/bash
+
+# Codebase Backup Script
+# This script recursively traverses a codebase and saves all files into
+# a single document with clear headers and footers indicating
+# which parts correspond to which files.
+
+# Define the output file
+OUTPUT_FILE="codebase_backup.txt"
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -o|--output)
+      OUTPUT_FILE="$2"
+      shift 2
+      ;;
+    -h|--help)
+      echo "Usage: $0 [OPTIONS]"
+      echo "Options:"
+      echo "  -o, --output FILE    Specify output file (default: codebase_backup.txt)"
+      echo "  -h, --help           Display this help message"
+      exit 0
+      ;;
+    *)
+      echo "Unknown option: $1"
+      echo "Use --help for usage information"
+      exit 1
+      ;;
+  esac
+done
+
+# Clear the output file if it exists
+> "$OUTPUT_FILE"
+
+# Add a header to the output file
+echo "# CODEBASE BACKUP" >> "$OUTPUT_FILE"
+echo "# Generated on $(date)" >> "$OUTPUT_FILE"
+echo "# Working directory: $(pwd)" >> "$OUTPUT_FILE"
+echo -e "# ====================================\n\n" >> "$OUTPUT_FILE"
+
+# Counter for file numbering
+file_counter=1
+
+# Find all files recursively, excluding hidden files/directories and common binary/non-code files
+find . -type f \
+    -not -path "*/\.*" \
+    -not -path "*/node_modules/*" \
+    -not -path "*/venv/*" \
+    -not -path "*/__pycache__/*" \
+    -not -path "*/build/*" \
+    -not -path "*/dist/*" \
+    -not -name "*.jpg" \
+    -not -name "*.jpeg" \
+    -not -name "*.png" \
+    -not -name "*.gif" \
+    -not -name "*.pdf" \
+    -not -name "*.zip" \
+    -not -name "*.tar" \
+    -not -name "*.gz" \
+    -not -name "*.pyc" \
+    | sort | while read -r file; do
+
+    # Skip the output file itself to avoid infinite loop
+    if [ "$file" = "./$OUTPUT_FILE" ]; then
+        continue
+    fi
+
+    # Skip binary files
+    if file "$file" | grep -q "binary"; then
+        continue
+    fi
+
+    # Get file extension to determine comment style
+    file_ext="${file##*.}"
+
+    # Determine comment style based on file extension
+    comment_prefix="# "
+    comment_suffix=""
+
+    case "$file_ext" in
+        js|ts|java|c|cpp|cs|go|swift|kt|scala|php)
+            comment_prefix="// "
+            ;;
+        html|xml|svg)
+            comment_prefix="<!-- "
+            comment_suffix=" -->"
+            ;;
+        css|scss|sass|less)
+            comment_prefix="/* "
+            comment_suffix=" */"
+            ;;
+        sql)
+            comment_prefix="-- "
+            ;;
+    esac
+
+    # Get file metadata
+    file_size=$(du -h "$file" | cut -f1)
+    file_lines=$(wc -l < "$file" 2>/dev/null || echo "0")
+
+    # Add a header comment with the file path and metadata
+    echo -e "\n\n${comment_prefix}==================================================================${comment_suffix}" >> "$OUTPUT_FILE"
+    echo -e "${comment_prefix}FILE #${file_counter}: $file${comment_suffix}" >> "$OUTPUT_FILE"
+    echo -e "${comment_prefix}==================================================================${comment_suffix}" >> "$OUTPUT_FILE"
+    echo -e "${comment_prefix}Path: $file${comment_suffix}" >> "$OUTPUT_FILE"
+    echo -e "${comment_prefix}Size: $file_size | Lines: $file_lines${comment_suffix}" >> "$OUTPUT_FILE"
+    echo -e "${comment_prefix}=== BEGIN CONTENT ===${comment_suffix}\n" >> "$OUTPUT_FILE"
+
+    # Append the file contents
+    cat "$file" >> "$OUTPUT_FILE"
+
+    # Add a footer comment
+    echo -e "\n${comment_prefix}=== END OF FILE #${file_counter}: $file ===${comment_suffix}" >> "$OUTPUT_FILE"
+    echo -e "${comment_prefix}==================================================================${comment_suffix}" >> "$OUTPUT_FILE"
+
+    # Increment file counter
+    file_counter=$((file_counter + 1))
+done
+
+echo "Codebase has been backed up to $OUTPUT_FILE"
+echo "Total files processed: $((file_counter - 1))"
+
+# === END OF FILE #1: ./export.sh ===
+# ==================================================================
+
+
+// ==================================================================
+// FILE #2: ./java/com/example/lab3/config/AppConfig.java
+// ==================================================================
+// Path: ./java/com/example/lab3/config/AppConfig.java
+// Size: 8.0K | Lines: 135
+// === BEGIN CONTENT ===
+
+package com.example.lab3.config;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.example.lab3.model.impl.HorrorBook;
+import com.example.lab3.model.impl.ScienceFictionBook;
+import com.example.lab3.model.impl.StoryBook;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.Scope;
+
+@Configuration
+@ComponentScan(basePackages = "com.example")
+@PropertySource("classpath:application.properties")
+public class AppConfig {
+
+    @Value("${story.book.ageGroup:Young Adult}")
+    private String defaultAgeGroup;
+
+    @Value("${default.book.available:true}")
+    private boolean defaultAvailable;
+
+    // Story Book bean - Singleton scope (default)
+    @Bean
+    public StoryBook storyBook() {
+        StoryBook book = new StoryBook();
+        book.setTitle("The Great Adventure");
+        book.setAuthor("John Doe");
+        book.setPages(256);
+        book.setAgeGroup(defaultAgeGroup);
+        book.setAvailable(defaultAvailable);
+
+        List<String> tags = new ArrayList<>();
+        tags.add("adventure");
+        tags.add("coming-of-age");
+        tags.add("fantasy");
+        book.setTags(tags);
+
+        book.setPublishDate(new Date(1577836800000L)); // Jan 1, 2020
+
+        return book;
+    }
+
+    // Science Fiction Book bean - Prototype scope
+    @Bean
+    @Scope("prototype")
+    public ScienceFictionBook scienceFictionBook() {
+        ScienceFictionBook book = new ScienceFictionBook();
+        book.setTitle("Space Odyssey");
+        book.setAuthor("Jane Smith");
+        book.setPages(422);
+        book.setSubgenre("Space Opera");
+        book.setAvailable(defaultAvailable);
+
+        List<String> tags = new ArrayList<>();
+        tags.add("space");
+        tags.add("future");
+        tags.add("technology");
+        book.setTags(tags);
+
+        Map<String, String> techTerms = new HashMap<>();
+        techTerms.put("FTL", "Faster Than Light Travel");
+        techTerms.put("AI", "Artificial Intelligence");
+        techTerms.put("Terraform", "Process of making a planet habitable");
+        book.setTechTerms(techTerms);
+
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            book.setPublishDate(sdf.parse("2022-05-15"));
+        } catch (Exception e) {
+            book.setPublishDate(new Date());
+        }
+
+        return book;
+    }
+
+    // Alternate Science Fiction Book - For demonstrating @Qualifier
+    @Bean
+    public ScienceFictionBook alternateSciFiBook() {
+        ScienceFictionBook book = new ScienceFictionBook();
+        book.setTitle("Cybernetic Revolution");
+        book.setAuthor("Robert Chen");
+        book.setPages(368);
+        book.setSubgenre("Cyberpunk");
+        book.setAvailable(true);
+
+        List<String> tags = new ArrayList<>();
+        tags.add("cyberpunk");
+        tags.add("dystopia");
+        tags.add("artificial-intelligence");
+        book.setTags(tags);
+
+        Map<String, String> techTerms = new HashMap<>();
+        techTerms.put("Neural Interface", "Direct brain-computer connection");
+        techTerms.put("Cyberspace", "Virtual reality network");
+        book.setTechTerms(techTerms);
+
+        book.setPublishDate(new Date());
+
+        return book;
+    }
+
+    // Horror Book bean
+    @Bean
+    public HorrorBook horrorBook() {
+        HorrorBook book = new HorrorBook("Midnight Terror", "Mike Johnson");
+        book.setPages(318);
+        book.setScareRating(8);
+        book.setContainsSupernaturalElements(true);
+        book.setAvailable(false);
+
+        List<String> tags = new ArrayList<>();
+        tags.add("horror");
+        tags.add("supernatural");
+        tags.add("thriller");
+        book.setTags(tags);
+
+        book.setPublishDate(new Date(1609459200000L)); // Jan 1, 2021
+
+        return book;
+    }
+
+    // Date formatter bean
+    @Bean
+    public SimpleDateFormat dateFormatter() {
+        return new SimpleDateFormat("yyyy-MM-dd");
+    }
+}
+// === END OF FILE #2: ./java/com/example/lab3/config/AppConfig.java ===
+// ==================================================================
+
+
+// ==================================================================
+// FILE #3: ./java/com/example/lab3/display/BookIndicator.java
+// ==================================================================
+// Path: ./java/com/example/lab3/display/BookIndicator.java
+// Size: 8.0K | Lines: 132
+// === BEGIN CONTENT ===
+
+package com.example.lab3.display;
+
+import com.example.lab3.model.Figure;
+import com.example.lab3.model.impl.ScienceFictionBook;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.Map;
+
+@Component
+public class BookIndicator {
+
+    // Using @Autowired on field
+    @Autowired
+    @Qualifier("storyBook")  // Specify which bean to use
+    private Figure book;
+
+    // Multiple ScienceFictionBooks defined - using @Qualifier to resolve
+    @Autowired
+    @Qualifier("alternateSciFiBook")
+    private ScienceFictionBook sciFiBook;
+
+    @Value("${app.name:Book Library}")
+    private String displayName;
+
+    private Map<String, Figure> availableBooks = new HashMap<>();
+
+    // Autowiring a date formatter
+    @Autowired
+    private SimpleDateFormat dateFormatter;
+
+    // Constructor injection with @Autowired
+    @Autowired
+    public BookIndicator(@Qualifier("horrorBook") Figure horrorBook) {
+        availableBooks.put("Horror", horrorBook);
+    }
+
+    // Method injection with @Autowired
+    @Autowired
+    public void setAvailableSciFiBooks(
+            @Qualifier("scienceFictionBook") ScienceFictionBook mainSciFi,
+            @Qualifier("alternateSciFiBook") ScienceFictionBook altSciFi) {
+        availableBooks.put("MainSciFi", mainSciFi);
+        availableBooks.put("AltSciFi", altSciFi);
+    }
+
+    // Init method using @PostConstruct
+    @PostConstruct
+    public void setup() {
+        System.out.println("Setting up BookIndicator with display name: " + displayName);
+        System.out.println("Number of available books: " + availableBooks.size());
+
+        // Add the main book if not already in the map
+        if (!availableBooks.containsValue(book)) {
+            availableBooks.put("Main", book);
+        }
+    }
+
+    // Destroy method using @PreDestroy
+    @PreDestroy
+    public void teardown() {
+        System.out.println("Tearing down BookIndicator");
+        availableBooks.clear();
+    }
+
+    public void displayBook() {
+        System.out.println("-----------------------------------");
+        System.out.println("Display Name: " + displayName);
+        System.out.println("Book Category: " + book.getCategory());
+        System.out.println("Description: " + book.getDescription());
+        System.out.println("Available: " + (book.isAvailable() ? "Yes" : "No"));
+        System.out.println("Tags: " + String.join(", ", book.getTags()));
+
+        if (dateFormatter != null && book.getPublishDate() != null) {
+            System.out.println("Formatted Publish Date: " +
+                    dateFormatter.format(book.getPublishDate()));
+        }
+
+        System.out.println("-----------------------------------");
+    }
+
+    public void displaySciFiBook() {
+        System.out.println("-----------------------------------");
+        System.out.println("Science Fiction Book: " + sciFiBook.getTitle());
+        System.out.println("Subgenre: " + sciFiBook.getSubgenre());
+        System.out.println("Description: " + sciFiBook.getDescription());
+        System.out.println("-----------------------------------");
+    }
+
+    public void displayAllBooks() {
+        System.out.println("===== Available Books =====");
+        for (Map.Entry<String, Figure> entry : availableBooks.entrySet()) {
+            Figure book = entry.getValue();
+            System.out.println(entry.getKey() + ": " + book.getDescription());
+
+            if (dateFormatter != null && book.getPublishDate() != null) {
+                System.out.println("  Published: " + dateFormatter.format(book.getPublishDate()));
+            }
+        }
+        System.out.println("==========================");
+    }
+
+    // Getters and setters
+    public Figure getBook() {
+        return book;
+    }
+
+    public void setBook(Figure book) {
+        this.book = book;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+    public Map<String, Figure> getAvailableBooks() {
+        return availableBooks;
+    }
+
+    public void setAvailableBooks(Map<String, Figure> availableBooks) {
+        this.availableBooks = availableBooks;
+    }
+}
+// === END OF FILE #3: ./java/com/example/lab3/display/BookIndicator.java ===
+// ==================================================================
+
+
+// ==================================================================
+// FILE #4: ./java/com/example/lab3/Lab3Application.java
+// ==================================================================
+// Path: ./java/com/example/lab3/Lab3Application.java
+// Size: 4.0K | Lines: 43
+// === BEGIN CONTENT ===
+
+package com.example.lab3;
+
+import com.example.lab3.config.AppConfig;
+import com.example.lab3.display.BookIndicator;
+import com.example.lab3.model.Figure;
+import com.example.lab3.model.impl.ScienceFictionBook;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+public class Lab3Application {
+    public static void main(String[] args) {
+        // Load the Spring configuration using annotations
+        ConfigurableApplicationContext context =
+                new AnnotationConfigApplicationContext(AppConfig.class);
+
+        // Get the BookIndicator bean
+        BookIndicator bookIndicator = context.getBean(BookIndicator.class);
+
+        // Display the book details
+        bookIndicator.displayBook();
+
+        // Display science fiction book details
+        bookIndicator.displaySciFiBook();
+
+        // Display all available books
+        bookIndicator.displayAllBooks();
+
+        // Get a prototype bean twice to demonstrate scope
+        ScienceFictionBook sciFi1 = context.getBean("scienceFictionBook", ScienceFictionBook.class);
+        ScienceFictionBook sciFi2 = context.getBean("scienceFictionBook", ScienceFictionBook.class);
+
+        System.out.println("Are prototype beans the same instance? " + (sciFi1 == sciFi2));
+
+        // Get a singleton bean twice to demonstrate scope
+        BookIndicator indicator1 = context.getBean(BookIndicator.class);
+        BookIndicator indicator2 = context.getBean(BookIndicator.class);
+
+        System.out.println("Are singleton beans the same instance? " + (indicator1 == indicator2));
+
+        // Close the application context
+        context.close();
+    }
+}
+// === END OF FILE #4: ./java/com/example/lab3/Lab3Application.java ===
+// ==================================================================
+
+
+// ==================================================================
+// FILE #5: ./java/com/example/lab3/model/Figure.java
+// ==================================================================
+// Path: ./java/com/example/lab3/model/Figure.java
+// Size: 4.0K | Lines: 16
+// === BEGIN CONTENT ===
+
+package com.example.lab3.model;
+
+import java.util.Date;
+import java.util.List;
+
+public interface Figure {
+    String getDescription();
+    String getCategory();
+    List<String> getTags();
+    void setTags(List<String> tags);
+    boolean isAvailable();
+    void setAvailable(boolean available);
+
+    // Added publish date methods
+    Date getPublishDate();
+    void setPublishDate(Date publishDate);
+}
+// === END OF FILE #5: ./java/com/example/lab3/model/Figure.java ===
+// ==================================================================
+
+
+// ==================================================================
+// FILE #6: ./java/com/example/lab3/model/impl/AbstractBook.java
+// ==================================================================
+// Path: ./java/com/example/lab3/model/impl/AbstractBook.java
+// Size: 4.0K | Lines: 95
+// === BEGIN CONTENT ===
+
+package com.example.lab3.model.impl;
+
+import com.example.lab3.model.Figure;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Date;
+
+public abstract class AbstractBook implements Figure {
+    private String title;
+    private String author;
+    private int pages;
+    private Date publishDate;
+    private boolean available = true;
+    private List<String> tags = new ArrayList<>();
+
+    // Default constructor
+    public AbstractBook() {
+    }
+
+    // Constructor with title and author
+    public AbstractBook(String title, String author) {
+        this.title = title;
+        this.author = author;
+    }
+
+    // Initialization method called after properties are set
+    @PostConstruct
+    public void initialize() {
+        System.out.println("Initializing book: " + title + " by " + author);
+        if (publishDate == null) {
+            publishDate = new Date(); // Default to current date
+        }
+    }
+
+    // Destruction method called before bean is destroyed
+    @PreDestroy
+    public void cleanup() {
+        System.out.println("Cleaning up book: " + title + " by " + author);
+    }
+
+    @Override
+    public List<String> getTags() {
+        return tags;
+    }
+
+    @Override
+    public void setTags(List<String> tags) {
+        this.tags = tags;
+    }
+
+    @Override
+    public boolean isAvailable() {
+        return available;
+    }
+
+    @Override
+    public void setAvailable(boolean available) {
+        this.available = available;
+    }
+
+    // Common getters and setters
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    public int getPages() {
+        return pages;
+    }
+
+    public void setPages(int pages) {
+        this.pages = pages;
+    }
+
+    public Date getPublishDate() {
+        return publishDate;
+    }
+
+    public void setPublishDate(Date publishDate) {
+        this.publishDate = publishDate;
+    }
+}
+// === END OF FILE #6: ./java/com/example/lab3/model/impl/AbstractBook.java ===
+// ==================================================================
+
+
+// ==================================================================
+// FILE #7: ./java/com/example/lab3/model/impl/HorrorBook.java
+// ==================================================================
+// Path: ./java/com/example/lab3/model/impl/HorrorBook.java
+// Size: 4.0K | Lines: 56
+// === BEGIN CONTENT ===
+
+package com.example.lab3.model.impl;
+
+import jakarta.annotation.PreDestroy;
+import org.springframework.stereotype.Component;
+
+@Component
+public class HorrorBook extends AbstractBook {
+    private int scareRating;
+    private boolean containsSupernaturalElements;
+
+    // Default constructor
+    public HorrorBook() {
+        super();
+    }
+
+    // Constructor with title and author
+    public HorrorBook(String title, String author) {
+        super(title, author);
+    }
+
+    @Override
+    public String getDescription() {
+        return "A horror book titled '" + getTitle() + "' by " + getAuthor()
+                + ". Scare rating: " + scareRating + "/10"
+                + (containsSupernaturalElements ? ", Contains supernatural elements" : "")
+                + ". Pages: " + getPages() + ", Published: " + getPublishDate();
+    }
+
+    @Override
+    public String getCategory() {
+        return "Horror";
+    }
+
+    @Override
+    @PreDestroy
+    public void cleanup() {
+        super.cleanup();
+        System.out.println("Extra cleanup for horror book with scare rating: " + scareRating);
+    }
+
+    // Getters and setters
+    public int getScareRating() {
+        return scareRating;
+    }
+
+    public void setScareRating(int scareRating) {
+        this.scareRating = scareRating;
+    }
+
+    public boolean isContainsSupernaturalElements() {
+        return containsSupernaturalElements;
+    }
+
+    public void setContainsSupernaturalElements(boolean containsSupernaturalElements) {
+        this.containsSupernaturalElements = containsSupernaturalElements;
+    }
+}
+// === END OF FILE #7: ./java/com/example/lab3/model/impl/HorrorBook.java ===
+// ==================================================================
+
+
+// ==================================================================
+// FILE #8: ./java/com/example/lab3/model/impl/ScienceFictionBook.java
+// ==================================================================
+// Path: ./java/com/example/lab3/model/impl/ScienceFictionBook.java
+// Size: 4.0K | Lines: 41
+// === BEGIN CONTENT ===
+
+package com.example.lab3.model.impl;
+
+import org.springframework.stereotype.Component;
+
+import java.util.HashMap;
+import java.util.Map;
+
+@Component
+public class ScienceFictionBook extends AbstractBook {
+    private String subgenre;
+    private Map<String, String> techTerms = new HashMap<>();
+
+    @Override
+    public String getDescription() {
+        return "A " + subgenre + " science fiction book titled '" + getTitle()
+                + "' by " + getAuthor() + ". Pages: " + getPages()
+                + ", Published: " + getPublishDate()
+                + ", Contains " + techTerms.size() + " tech terms.";
+    }
+
+    @Override
+    public String getCategory() {
+        return "Science Fiction";
+    }
+
+    // Getters and setters
+    public String getSubgenre() {
+        return subgenre;
+    }
+
+    public void setSubgenre(String subgenre) {
+        this.subgenre = subgenre;
+    }
+
+    public Map<String, String> getTechTerms() {
+        return techTerms;
+    }
+
+    public void setTechTerms(Map<String, String> techTerms) {
+        this.techTerms = techTerms;
+    }
+}
+// === END OF FILE #8: ./java/com/example/lab3/model/impl/ScienceFictionBook.java ===
+// ==================================================================
+
+
+// ==================================================================
+// FILE #9: ./java/com/example/lab3/model/impl/StoryBook.java
+// ==================================================================
+// Path: ./java/com/example/lab3/model/impl/StoryBook.java
+// Size: 4.0K | Lines: 38
+// === BEGIN CONTENT ===
+
+package com.example.lab3.model.impl;
+
+import com.example.lab3.model.Figure;
+import jakarta.annotation.PostConstruct;
+import org.springframework.stereotype.Component;
+
+@Component
+public class StoryBook extends AbstractBook {
+    private String ageGroup;
+
+    @Override
+    public String getDescription() {
+        return "A story book titled '" + getTitle() + "' by " + getAuthor()
+                + ", suitable for " + ageGroup + " readers. Pages: " + getPages()
+                + ", Published: " + getPublishDate();
+    }
+
+    @Override
+    public String getCategory() {
+        return "Story";
+    }
+
+    // Custom initialization
+    @Override
+    @PostConstruct
+    public void initialize() {
+        super.initialize();
+        System.out.println("Story book initialized with age group: " + ageGroup);
+    }
+
+    // Getters and setters
+    public String getAgeGroup() {
+        return ageGroup;
+    }
+
+    public void setAgeGroup(String ageGroup) {
+        this.ageGroup = ageGroup;
+    }
+}
+// === END OF FILE #9: ./java/com/example/lab3/model/impl/StoryBook.java ===
+// ==================================================================
+
+
+<!-- ================================================================== -->
+<!-- FILE #10: ./resources/applicationContext.xml -->
+<!-- ================================================================== -->
+<!-- Path: ./resources/applicationContext.xml -->
+<!-- Size: 4.0K | Lines: 28 -->
+<!-- === BEGIN CONTENT === -->
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- Category display class (BookIndicator) bean -->
+    <bean id="bookIndicator" class="com.example.lab3.display.BookIndicator">
+        <!-- Initially set with a StoryBook, but can be changed at runtime -->
+        <property name="book" ref="storyBook" />
+    </bean>
+
+    <!-- Book category beans (implementations of Figure interface) -->
+    <bean id="storyBook" class="com.example.lab3.model.impl.StoryBook">
+        <property name="title" value="The Great Adventure" />
+        <property name="author" value="John Doe" />
+    </bean>
+
+    <bean id="scienceFictionBook" class="com.example.lab3.model.impl.ScienceFictionBook">
+        <property name="title" value="Space Odyssey" />
+        <property name="author" value="Jane Smith" />
+    </bean>
+
+    <bean id="horrorBook" class="com.example.lab3.model.impl.HorrorBook">
+        <property name="title" value="Midnight Terror" />
+        <property name="author" value="Mike Johnson" />
+    </bean>
+
+</beans>
+<!-- === END OF FILE #10: ./resources/applicationContext.xml === -->
+<!-- ================================================================== -->
+
+
+# ==================================================================
+# FILE #11: ./resources/application.properties
+# ==================================================================
+# Path: ./resources/application.properties
+# Size: 4.0K | Lines: 12
+# === BEGIN CONTENT ===
+
+spring.application.name=lab3
+
+app.name=Book Catalog
+app.version=1.0.0
+
+# Database configuration
+db.url=jdbc:mysql://localhost:3306/bookdb
+db.username=bookuser
+db.password=bookpass
+
+# Book settings
+default.book.available=true
+story.book.ageGroup=Young Adult
+# === END OF FILE #11: ./resources/application.properties ===
+# ==================================================================
