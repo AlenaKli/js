@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Calculator Result</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .nav {
+            background-color: #f8f9fa;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .nav a {
+            margin-right: 15px;
+            text-decoration: none;
+            color: #007bff;
+        }
+        .result {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+        .btn {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .calculator-form {
+            margin-top: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            width: 100%;
+            max-width: 300px;
+        }
+        .submit-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="nav">
+        <a th:href="@{/}">Home</a>
+        <a th:href="@{/story}">Story Book</a>
+        <a th:href="@{/scifi}">Science Fiction Book</a>
+        <a th:href="@{/scifi-alt}">Alternate Sci-Fi Book</a>
+        <a th:href="@{/horror}">Horror Book</a>
+        <a th:href="@{/all}">All Books</a>
+        <a th:href="@{/calculate}">Calculator</a>
+    </div>
+
+    <h1>Calculator Result</h1>
+
+    <div class="card">
+        <div th:if="${error}" class="error" th:text="${error}">Error message</div>
+
+        <div th:unless="${error}">
+            <div class="result">
+                <span th:text="${num1}">5</span>
+                <span th:text="${operationSymbol}">+</span>
+                <span th:text="${num2}">3</span>
+                = <span th:text="${result}">8</span>
+            </div>
+        </div>
+
+        <div class="calculator-form">
+            <h3>Try another calculation</h3>
+            <form th:action="@{/calculate}" method="get">
+                <div class="form-group">
+                    <label for="num1">First Number:</label>
+                    <input type="number" id="num1" name="num1" step="any" th:value="${num1}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="num2">Second Number:</label>
+                    <input type="number" id="num2" name="num2" step="any" th:value="${num2}" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="operation">Operation:</label>
+                    <select id="operation" name="operation">
+                        <option value="add" th:selected="${operation == 'add'}">Addition (+)</option>
+                        <option value="subtract" th:selected="${operation == 'subtract'}">Subtraction (-)</option>
+                        <option value="multiply" th:selected="${operation == 'multiply'}">Multiplication (*)</option>
+                        <option value="divide" th:selected="${operation == 'divide'}">Division (/)</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="submit-btn">Calculate</button>
+            </form>
+        </div>
+    </div>
+
+    <a th:href="@{/}" class="btn">Back to Home</a>
+</div>
+</body>
+</html>
