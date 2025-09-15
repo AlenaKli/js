@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- Category display class (BookIndicator) bean -->
+    <bean id="bookIndicator" class="com.example.lab3.display.BookIndicator">
+        <!-- Initially set with a StoryBook, but can be changed at runtime -->
+        <property name="book" ref="storyBook" />
+    </bean>
+
+    <!-- Book category beans (implementations of Figure interface) -->
+    <bean id="storyBook" class="com.example.lab3.model.impl.StoryBook">
+        <property name="title" value="The Great Adventure" />
+        <property name="author" value="John Doe" />
+    </bean>
+
+    <bean id="scienceFictionBook" class="com.example.lab3.model.impl.ScienceFictionBook">
+        <property name="title" value="Space Odyssey" />
+        <property name="author" value="Jane Smith" />
+    </bean>
+
+    <bean id="horrorBook" class="com.example.lab3.model.impl.HorrorBook">
+        <property name="title" value="Midnight Terror" />
+        <property name="author" value="Mike Johnson" />
+    </bean>
+
+</beans>
