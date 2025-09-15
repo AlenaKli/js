@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${bookType}">Book Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .card-title {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .nav {
+            background-color: #f8f9fa;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .nav a {
+            margin-right: 15px;
+            text-decoration: none;
+            color: #007bff;
+        }
+        .btn {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .tag {
+            background-color: #e9ecef;
+            padding: 3px 8px;
+            border-radius: 4px;
+            margin-right: 5px;
+            display: inline-block;
+            margin-bottom: 5px;
+        }
+        .term {
+            background-color: #f8f9fa;
+            padding: 8px;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            border-left: 3px solid #007bff;
+        }
+        .term-key {
+            font-weight: bold;
+        }
+        .property {
+            margin-bottom: 10px;
+        }
+        .property-label {
+            font-weight: bold;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="nav">
+        <a th:href="@{/}">Home</a>
+        <a th:href="@{/story}">Story Book</a>
+        <a th:href="@{/scifi}">Science Fiction Book</a>
+        <a th:href="@{/scifi-alt}">Alternate Sci-Fi Book</a>
+        <a th:href="@{/horror}">Horror Book</a>
+        <a th:href="@{/all}">All Books</a>
+    </div>
+
+    <h1 th:text="${bookType}">Book Details</h1>
+
+    <div class="card">
+        <div class="card-title" th:text="${book.title}">Book Title</div>
+
+        <div class="property">
+            <span class="property-label">Author:</span>
+            <span th:text="${book.author}">Author</span>
+        </div>
+
+        <div class="property">
+            <span class="property-label">Category:</span>
+            <span th:text="${book.category}">Category</span>
+        </div>
+
+        <div class="property">
+            <span class="property-label">Description:</span>
+            <span th:text="${book.description}">Description</span>
+        </div>
+
+        <div class="property">
+            <span class="property-label">Pages:</span>
+            <span th:text="${book.pages}">Pages</span>
+        </div>
+
+        <div class="property">
+            <span class="property-label">Available:</span>
+            <span th:text="${book.available ? 'Yes' : 'No'}">Availability</span>
+        </div>
+
+        <div class="property">
+            <span class="property-label">Published:</span>
+            <span th:text="${publishDate}">Publish Date</span>
+        </div>
+
+        <!-- Tags -->
+        <div th:if="${book.tags != null && !book.tags.empty}" class="property">
+            <div class="property-label">Tags:</div>
+            <div>
+                <span th:each="tag : ${book.tags}" class="tag" th:text="${tag}">Tag</span>
+            </div>
+        </div>
+
+        <!-- Science Fiction Book specific fields -->
+        <div th:if="${book instanceof T(com.example.lab3.model.impl.ScienceFictionBook)}">
+            <div class="property">
+                <span class="property-label">Subgenre:</span>
+                <span th:text="${book.subgenre}">Subgenre</span>
+            </div>
+
+            <div th:if="${book.techTerms != null && !book.techTerms.empty}" class="property">
+                <div class="property-label">Tech Terms:</div>
+                <div th:each="term : ${book.techTerms}" class="term">
+                    <span class="term-key" th:text="${term.key}">Term</span>:
+                    <span th:text="${term.value}">Definition</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Horror Book specific fields -->
+        <div th:if="${book instanceof T(com.example.lab3.model.impl.HorrorBook)}">
+            <div class="property">
+                <span class="property-label">Scare Rating:</span>
+                <span th:text="${book.scareRating + '/10'}">Scare Rating</span>
+            </div>
+
+            <div class="property">
+                <span class="property-label">Contains Supernatural Elements:</span>
+                <span th:text="${book.containsSupernaturalElements ? 'Yes' : 'No'}">Supernatural</span>
+            </div>
+        </div>
+
+        <!-- Story Book specific fields -->
+        <div th:if="${book instanceof T(com.example.lab3.model.impl.StoryBook)}">
+            <div class="property">
+                <span class="property-label">Age Group:</span>
+                <span th:text="${book.ageGroup}">Age Group</span>
+            </div>
+        </div>
+    </div>
+
+    <a th:href="@{/}" class="btn">Back to Home</a>
+</div>
+</body>
+</html>
